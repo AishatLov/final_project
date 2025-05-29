@@ -1,6 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+# Fatima code
+
+class Topic(models.Model):
+    name = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class Profile(models.Model):
     AGE_GROUP_CHOICES = [
         ('<15', 'Less than 15'),
@@ -27,18 +36,12 @@ class Profile(models.Model):
     internet_type = models.CharField(max_length=20, choices=INTERNET_TYPE_CHOICES)
     learning_type = models.CharField(max_length=20, choices=LEARNING_TYPE_CHOICES)
     picture = models.FileField(upload_to='profile_pictures/', blank=True, null=True)
+    topic_of_interest = models.ManyToManyField(Topic, blank=True,related_name='profiles')
 
     def __str__(self):
         return self.user.username
 
-class Survey(models.Model):
-    title = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.title
-
 class Question(models.Model):
-    survey = models.ForeignKey(Survey, related_name='questions', on_delete=models.CASCADE)
     description = models.CharField(max_length=255)
 
     def __str__(self):
@@ -58,4 +61,5 @@ class UserQuestionResponse(models.Model):
 
     def __str__(self):
          return self.response
+    
    

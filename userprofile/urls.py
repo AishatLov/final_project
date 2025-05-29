@@ -1,11 +1,13 @@
 from django.urls import path
-from .views import SetupProfileView, LoginView, RegisterView, UpdateProfilePictureView
+from .import views
 
 urlpatterns = [
-    path('login/', LoginView.as_view(), name='login'),
-    path('setup-profile/', SetupProfileView.as_view(), name='setup-profile'),
-    path('register/', RegisterView.as_view(), name='register'),  # Corrected
-    path('update-profile-picture/', UpdateProfilePictureView.as_view(), name='update-profile-picture'),  # Corrected
-    path('profile/', SetupProfileView.as_view(), name='profile'),  # Alias for setup-profile
-    # Add more URLs here as needed
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('setup-profile/', views.SetupProfileView.as_view(), name='setup-profile'),
+    path('register/', views.RegisterView.as_view(), name='register'),  # Corrected
+    path('update-profile-picture/', views.UpdateProfilePictureView.as_view(), name='update-profile-picture'),  # Corrected
+
+    # Add more URLs here as needed (Fatimah code)
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('topics/', views.TopicView.as_view(), name='topics'),
 ]
