@@ -4,8 +4,8 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Profile, Topic
-from .serializers import ProfileSerializer, UserRegistrationSerializer, TopicSerializer
+from .models import Profile, Topic, OnboardingQuestion
+from .serializers import ProfileSerializer, UserRegistrationSerializer, TopicSerializer, OnboardingQuestionSerializer
 
 
 class TopicView(APIView):
@@ -71,9 +71,12 @@ class UpdateProfilePictureView(APIView):
 
 # PENDING TASKS
 
-
 class GetOnboardingQuestions(APIView):
-    def get(self, request,format=None):
+    def get(self, request, format=None):
+        questions = OnboardingQuestion.objects.all()
+        serializer = OnboardingQuestionSerializer(questions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
         """
         return all of the onboarding questions in our database
         1) get all questions

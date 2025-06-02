@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Topic
+from .models import Profile, Topic, OnboardingQuestion
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
@@ -64,3 +64,8 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['picture']   
+
+class OnboardingQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnboardingQuestion
+        fields = '__all__'

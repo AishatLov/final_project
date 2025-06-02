@@ -62,4 +62,9 @@ class UserQuestionResponse(models.Model):
     def __str__(self):
          return self.response
     
-   
+class OnboardingQuestion(models.Model):
+    question_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.question_text
