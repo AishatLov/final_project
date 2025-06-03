@@ -1,6 +1,15 @@
 from rest_framework import serializers
-from .models import LearningPlan, OngoingCourse, CourseReward, Course, Tutor, CourseResource
-
+from .models import (
+    LearningPlan, 
+    OngoingCourse, 
+    CourseReward, 
+    Course, 
+    Tutor, 
+    CourseResource,
+    Quiz,
+    Question,
+    SelectedQuizQuestion
+)
 
 class LearningPlanSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +44,21 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = ['id', 'name', 'description', 'duration', 'tutor', 'image', 
                  'created_at', 'resources']
+
+# New serializers for Quiz functionality
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'description']
+
+class QuizSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title', 'questions', 'score']
+
+class SelectedQuizQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelectedQuizQuestion
+        fields = ['quiz', 'question', 'user_response']

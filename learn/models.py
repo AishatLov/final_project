@@ -1,16 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Tutor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.FileField(upload_to='tutors/')
     bio = models.TextField(blank=True)
-#   created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username
-
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -26,6 +23,9 @@ class Course(models.Model):
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 class CourseResource(models.Model):
     Resource_types = (
         ('video', 'Video'),
@@ -40,7 +40,7 @@ class CourseResource(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.resource_title} - {self.course.name}"
+        return self.resource_title + " - " + self.course.name
 
 class LearningPlan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -54,4 +54,26 @@ class OngoingCourse(models.Model):
 class CourseReward(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reward_description = models.TextField()
-    
+
+# New models for Quiz functionality
+class Question(models.Model):
+    description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.description
+
+class Quiz(models.Model):
+    title = models.CharField(max_length=200)
+    questions = models.ManyToManyField(Question, related_name='quizzes')
+    score = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.title
+
+class SelectedQuizQuestion(models.Model):
+    quiz = models.ForeignKey(Quiz, related_name='selected_questions', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='selected_questions', on_delete=models.CASCADE)
+    user_response = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.question.description + " - " + self.quiz.title

@@ -7,4 +7,8 @@ urlpatterns = [
     path('user/course-rewards/', views.UserCourseRewardsView.as_view(), name='user-course-rewards'),
     path('courses/', views.CourseListView.as_view(), name='course-list'),
     path('resources/', views.CourseResourceView.as_view(), name='course-resource'),
+    
+    # New URLs for quiz functionality
+    path('quizzes/', views.QuizListView.as_view(), name='quiz-list'),
+    path('quizzes/submit-response/', views.SubmitQuizResponseView.as_view(), name='submit-quiz-response'),
 ]

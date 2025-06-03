@@ -3,10 +3,17 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import LearningPlan, OngoingCourse, CourseReward, Course
-from .serializers import CourseResourceSerializer, CourseSerializer, LearningPlanSerializer, OngoingCourseSerializer, CourseRewardSerializer
+from .models import LearningPlan, OngoingCourse, CourseReward, Course, Quiz, SelectedQuizQuestion, Question
+from .serializers import (
+    CourseResourceSerializer, 
+    CourseSerializer, 
+    LearningPlanSerializer, 
+    OngoingCourseSerializer, 
+    CourseRewardSerializer,
+    QuizSerializer,
+    SelectedQuizQuestionSerializer
+)
 from django.contrib.auth.models import User
-
 
 class UserLearningPlanView(APIView):
     permission_classes = [IsAuthenticated]
@@ -40,8 +47,6 @@ def download_center(request):
     courses = Course.objects.all()  # Fetch all courses
     return render(request, 'download_center.html', {'courses': courses})
 
-
-# Fatimah
 class CourseListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -62,6 +67,25 @@ class CourseResourceView(APIView):
 
     def post(self, request):
         serializer = CourseResourceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# New views for quiz functionality
+class QuizListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        quizzes = Quiz.objects.all()
+        serializer = QuizSerializer(quizzes, many=True)
+        return Response(serializer.data)
+
+class SubmitQuizResponseView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SelectedQuizQuestionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
