@@ -60,14 +60,42 @@ class CourseMaterialSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id', 'description']
+        fields = ['id', 'description', 'options', 'correct_answer']  # Include new fields
 
 class QuizSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True)
+    questions = QuestionSerializer(many=True)  # Nested serializer for related questions
 
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'questions', 'score']
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop('questions')
+        quiz = Quiz.objects.create(**validated_data)
+        for question_data in questions_data:
+            question = Question.objects.create(**question_data)
+            quiz.questions.add(question)
+        return quiz
+
+    def update(self, instance, validated_data):
+        questions_data = validated_data.pop('questions')
+        instance.title = validated_data.get('title', instance.title)
+        instance.score = validated_data.get('score', instance.score)
+        instance.save()
+
+        # Update questions
+        for question_data in questions_data:
+            question_id = question_data.get('id')
+            if question_id:
+                question = Question.objects.get(id=question_id)
+                question.description = question_data.get('description', question.description)
+                question.options = question_data.get('options', question.options)
+                question.correct_answer = question_data.get('correct_answer', question.correct_answer)
+                question.save()
+            else:
+                # Create new question if no ID is provided
+                Question.objects.create(quiz=instance, **question_data)
+        return instance
 
 class SelectedQuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
