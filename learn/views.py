@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import LearningPlan, OngoingCourse, CourseReward, Course, Quiz, SelectedQuizQuestion, Question, SupportTicket, Schedule
+from .models import LearningPlan, OngoingCourse, CourseReward, Course, Quiz, SelectedQuizQuestion, Question, SupportTicket, Schedule, CompletedCourse, Tutor, CourseResource, CourseProgress, Section, CourseMaterial
 from .serializers import (
     CourseResourceSerializer, 
     CourseSerializer, 
@@ -14,18 +15,27 @@ from .serializers import (
     SelectedQuizQuestionSerializer,
     QuestionSerializer,
     SupportTicketSerializer,
-    ScheduleSerializer
+    ScheduleSerializer,
+    CompletedCourseSerializer,
+    TutorSerializer,
+    CourseProgressSerializer,
+    SectionSerializer,
+    CourseMaterialSerializer
 )
-from django.contrib.auth.models import User
 
 class UserLearningPlanView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        learning_plan = LearningPlan.objects.filter(user=user)
-        serializer = LearningPlanSerializer(learning_plan, many=True)
-        return Response(serializer.data)
+        learning_plans = LearningPlan.objects.filter(user=user)
+        serializer = LearningPlanSerializer(learning_plans, many=True)
+        
+        # Check if the user has any learning plans
+        if learning_plans.exists():
+            return Response(serializer.data)
+        else:
+            return Response({"message": "No learning plans found."}, status=404)
 
 class UserOngoingCoursesView(APIView):
     permission_classes = [IsAuthenticated]
@@ -64,6 +74,128 @@ class CourseListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CourseDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        try:
+            course = Course.objects.get(id=course_id)
+            serializer = CourseSerializer(course)
+            return Response(serializer.data)
+        except Course.DoesNotExist:
+            return Response({"message": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, course_id):
+        try:
+            course = Course.objects.get(id=course_id)
+            serializer = CourseSerializer(course, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Course.DoesNotExist:
+            return Response({"message": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, course_id):
+        try:
+            course = Course.objects.get(id=course_id)
+            course.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Course.DoesNotExist:
+            return Response({"message": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+
+# Course Material Views
+class CourseMaterialListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        materials = CourseMaterial.objects.filter(course_id=course_id)
+        serializer = CourseMaterialSerializer(materials, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, course_id):
+        serializer = CourseMaterialSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(course_id=course_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CourseMaterialDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id, material_id):
+        try:
+            material = CourseMaterial.objects.get(id=material_id, course_id=course_id)
+            serializer = CourseMaterialSerializer(material)
+            return Response(serializer.data)
+        except CourseMaterial.DoesNotExist:
+            return Response({"message": "Material not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, course_id, material_id):
+        try:
+            material = CourseMaterial.objects.get(id=material_id, course_id=course_id)
+            serializer = CourseMaterialSerializer(material, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except CourseMaterial.DoesNotExist:
+            return Response({"message": "Material not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, course_id, material_id):
+        try:
+            material = CourseMaterial.objects.get(id=material_id, course_id=course_id)
+            material.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except CourseMaterial.DoesNotExist:
+            return Response({"message": "Material not found."}, status=status.HTTP_404_NOT_FOUND)
+
+# section views
+class SectionListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sections = Section.objects.all()
+        serializer = SectionSerializer(sections, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = SectionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SectionDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, section_id):
+        try:
+            section = Section.objects.get(id=section_id)
+            serializer = SectionSerializer(section)
+            return Response(serializer.data)
+        except Section.DoesNotExist:
+            return Response({"message": "Section not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, section_id):
+        try:
+            section = Section.objects.get(id=section_id)
+            serializer = SectionSerializer(section, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Section.DoesNotExist:
+            return Response({"message": "Section not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, section_id):
+        try:
+            section = Section.objects.get(id=section_id)
+            section.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Section.DoesNotExist:
+            return Response({"message": "Section not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class CourseResourceView(APIView):
     permission_classes = [IsAuthenticated]
@@ -122,3 +254,45 @@ class ScheduleView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# views for completing courses
+@api_view(['GET'])
+def completed_courses(request):
+    completed_courses = CompletedCourse.objects.filter(user=request.user)
+    serializer = CompletedCourseSerializer(completed_courses, many=True)
+    return Response(serializer.data)
+
+# views for managing tutors
+@api_view(['GET'])
+def list_tutors(request):
+    tutors = Tutor.objects.all()
+    serializer = TutorSerializer(tutors, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def create_tutor(request):
+    serializer = TutorSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def list_user_progress(request):
+    user_progress = CourseProgress.objects.filter(user=request.user)
+    serializer = CourseProgressSerializer(user_progress, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def update_course_progress(request):
+    course_id = request.data.get('course_id')
+    score = request.data.get('score')
+    completion_status = request.data.get('completion_status')
+
+    progress, created = CourseProgress.objects.update_or_create(
+        user=request.user,
+        course_id=course_id,
+        defaults={'score': score, 'completion_status': completion_status}
+    )
+
+    return Response({"status": "success", "created": created})

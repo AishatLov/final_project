@@ -11,7 +11,11 @@ from .models import (
     Question,
     SelectedQuizQuestion,
     SupportTicket,
-    Schedule
+    Schedule,
+    CompletedCourse,
+    CourseProgress,
+    Section,
+    CourseMaterial  # Import CourseMaterial
 )
 
 # Register your models
@@ -19,7 +23,6 @@ admin.site.register(LearningPlan)
 admin.site.register(OngoingCourse)
 admin.site.register(CourseReward)
 admin.site.register(Course)
-admin.site.register(Tutor)
 admin.site.register(Category)
 admin.site.register(CourseResource)
 
@@ -30,3 +33,32 @@ admin.site.register(SelectedQuizQuestion)
 
 admin.site.register(SupportTicket)
 admin.site.register(Schedule)
+admin.site.register(CompletedCourse)
+admin.site.register(Section)
+
+# Register the Tutor model first
+admin.site.register(Tutor)  # Register it before unregistering
+
+# Custom admin for Tutor
+class TutorAdmin(admin.ModelAdmin):
+    list_display = ['user', 'profile_picture', 'bio']
+    search_fields = ['user__username', 'bio']
+
+# Unregister the default Tutor admin and register the custom one
+admin.site.unregister(Tutor)
+admin.site.register(Tutor, TutorAdmin)
+
+class CourseProgressAdmin(admin.ModelAdmin):
+    list_display = ['user', 'course', 'completion_status', 'score', 'last_accessed']
+    search_fields = ['user__username', 'course__title']
+
+admin.site.register(CourseProgress, CourseProgressAdmin)
+
+# Custom admin for CourseMaterial
+class CourseMaterialAdmin(admin.ModelAdmin):
+    list_display = ['course', 'title', 'uploaded_at']
+    search_fields = ['title', 'course__name']
+    list_filter = ['course']
+
+# Register CourseMaterial with the admin
+admin.site.register(CourseMaterial, CourseMaterialAdmin)

@@ -10,7 +10,11 @@ from .models import (
     Question,
     SelectedQuizQuestion,
     SupportTicket,
-    Schedule    
+    Schedule,
+    CompletedCourse,
+    CourseProgress,
+    Section,
+    CourseMaterial
 )
 
 class LearningPlanSerializer(serializers.ModelSerializer):
@@ -31,7 +35,7 @@ class CourseRewardSerializer(serializers.ModelSerializer):
 class TutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tutor
-        fields = ['id', 'user', 'profile_picture', 'bio']
+        fields = ['id', 'user', 'profile_picture', 'bio', 'courses', 'availability']
 
 class CourseResourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,6 +50,11 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = ['id', 'name', 'description', 'duration', 'tutor', 'image', 
                  'created_at', 'resources']
+        
+class CourseMaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseMaterial
+        fields = '__all__'
 
 # New serializers for Quiz functionality
 class QuestionSerializer(serializers.ModelSerializer):
@@ -76,3 +85,20 @@ class SupportTicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportTicket
         fields = ['id', 'user', 'subject', 'message', 'created_at', 'is_resolved']
+
+class CompletedCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompletedCourse
+        fields = ['id', 'user', 'course_id', 'completion_date', 'score']
+        
+class CourseProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseProgress
+        fields = ['id', 'user', 'course', 'completion_status', 'score', 'last_accessed']
+        
+# serializer for section
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = '__all__'
+    
