@@ -9,8 +9,8 @@ from .models import (
     Quiz,
     Question,
     SelectedQuizQuestion,
-    SupportTicket
-    
+    SupportTicket,
+    Schedule    
 )
 
 class LearningPlanSerializer(serializers.ModelSerializer):
@@ -64,6 +64,11 @@ class SelectedQuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SelectedQuizQuestion
         fields = ['quiz', 'question', 'user_response']
+        
+class ScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = ['id', 'course', 'date', 'start_time', 'end_time']
         
     
 

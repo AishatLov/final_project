@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'userprofile',  # User profile app
     'rest_framework.authtoken',  # Token authentication
     'learn',
+    'corsheaders',
+    'drf_spectacular',  # Django REST framework Spectacular for OpenAPI
 ]
 
 MIDDLEWARE = [
@@ -51,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware
 ]
 
 ROOT_URLCONF = 'nextgen.urls'
@@ -136,3 +139,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# nextgen/settings.py
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}

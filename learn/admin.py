@@ -10,7 +10,8 @@ from .models import (
     Quiz,
     Question,
     SelectedQuizQuestion,
-    SupportTicket
+    SupportTicket,
+    Schedule
 )
 
 # Register your models
@@ -28,3 +29,4 @@ admin.site.register(Question)
 admin.site.register(SelectedQuizQuestion)
 
 admin.site.register(SupportTicket)
+admin.site.register(Schedule)
