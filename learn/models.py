@@ -87,3 +87,13 @@ class SupportTicket(models.Model):
 
     def __str__(self):
         return self.subject
+
+
+class Schedule(models.Model):
+    course = models.ForeignKey(Course, related_name='schedules', on_delete=models.CASCADE)
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
+    def __str__(self):
+        return "{} on {} from {} to {}".format(self.course.name, self.date, self.start_time, self.end_time)

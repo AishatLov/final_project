@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import LearningPlan, OngoingCourse, CourseReward, Course, Quiz, SelectedQuizQuestion, Question, SupportTicket
+from .models import LearningPlan, OngoingCourse, CourseReward, Course, Quiz, SelectedQuizQuestion, Question, SupportTicket, Schedule
 from .serializers import (
     CourseResourceSerializer, 
     CourseSerializer, 
@@ -13,7 +13,8 @@ from .serializers import (
     QuizSerializer,
     SelectedQuizQuestionSerializer,
     QuestionSerializer,
-    SupportTicketSerializer
+    SupportTicketSerializer,
+    ScheduleSerializer
 )
 from django.contrib.auth.models import User
 
@@ -105,5 +106,19 @@ class SupportTicketView(APIView):
         serializer = SupportTicketSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# Schedule view for managing course schedules
+class ScheduleView(APIView):
+    def get(self, request):
+        schedules = Schedule.objects.all()
+        serializer = ScheduleSerializer(schedules, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ScheduleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
