@@ -11,4 +11,5 @@ urlpatterns = [
     # New URLs for quiz functionality
     path('quizzes/', views.QuizListView.as_view(), name='quiz-list'),
     path('quizzes/submit-response/', views.SubmitQuizResponseView.as_view(), name='submit-quiz-response'),
+    path('support/tickets/', views.SupportTicketView.as_view(), name='support-tickets'),
 ]

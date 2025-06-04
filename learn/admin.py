@@ -9,7 +9,8 @@ from .models import (
     CourseResource,
     Quiz,
     Question,
-    SelectedQuizQuestion
+    SelectedQuizQuestion,
+    SupportTicket
 )
 
 # Register your models
@@ -25,3 +26,5 @@ admin.site.register(CourseResource)
 admin.site.register(Quiz)
 admin.site.register(Question)
 admin.site.register(SelectedQuizQuestion)
+
+admin.site.register(SupportTicket)

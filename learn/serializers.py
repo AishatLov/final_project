@@ -8,7 +8,9 @@ from .models import (
     CourseResource,
     Quiz,
     Question,
-    SelectedQuizQuestion
+    SelectedQuizQuestion,
+    SupportTicket
+    
 )
 
 class LearningPlanSerializer(serializers.ModelSerializer):
@@ -62,3 +64,10 @@ class SelectedQuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SelectedQuizQuestion
         fields = ['quiz', 'question', 'user_response']
+        
+    
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportTicket
+        fields = ['id', 'user', 'subject', 'message', 'created_at', 'is_resolved']

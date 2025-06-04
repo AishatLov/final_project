@@ -54,10 +54,10 @@ class UserRegisterationSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(source='user.username')
     topic_of_interest = TopicSerializer(many=True)
-    
+
     class Meta:
-            model = Profile
-            fields = ['id' , 'user' , 'topic_of_interest']
+        model = Profile
+        fields = ['id', 'user', 'age_group', 'internet_type', 'learning_type', 'picture', 'topic_of_interest']
   
    
 class ProfilePictureSerializer(serializers.ModelSerializer):
