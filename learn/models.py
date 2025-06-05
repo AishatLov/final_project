@@ -105,7 +105,7 @@ class OngoingCourse(models.Model):
 # models for Quiz functionality
 class Question(models.Model):
     description = models.CharField(max_length=255)
-    options = models.JSONField(default=True)  # Store options as JSON for flexibility
+    options = models.CharField(max_length=255)  # Store options as JSON for flexibility
     correct_answer = models.CharField(max_length=255, default=False)  # The correct answer
 
     def __str__(self):

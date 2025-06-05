@@ -1,13 +1,9 @@
 from rest_framework import serializers
-from .models import Profile, Topic, OnboardingQuestion
+from .models import Profile, Topic, OnboardingQuestion, Question, QuestionOption
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 
-# class ProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Profile
-#         fields =  fields = '__all__'  # Include other fields as needed
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,7 +24,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
-        fields = ['name']
+        fields = ['name',"id"]
 
 
 class UserRegisterationSerializer(serializers.ModelSerializer):
@@ -52,14 +48,29 @@ class UserRegisterationSerializer(serializers.ModelSerializer):
         return user
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(source='user.username')
-    topic_of_interest = TopicSerializer(many=True)
+
+    topic_of_interest = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'age_group', 'internet_type', 'learning_type', 'picture', 'topic_of_interest']
-  
-   
+        fields = [
+            'id', 'age_group', 'internet_type',
+            'learning_type', 'picture', 'topic_of_interest',
+        ]
+
+    def get_topic_of_interest(self,obj):
+        return TopicSerializer(obj.topic_of_interest.all(),many=True).data
+
+    def create(self, validated_data):
+        topic_ids_str = validated_data.pop('topic_ids', '')
+        topic_ids = [int(t.strip()) for t in topic_ids_str.split(',')]
+        
+        user = self.context['request'].user
+        profile = Profile.objects.create(user=user, **validated_data)
+
+        return profile
+
+    
 class ProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
@@ -69,3 +80,21 @@ class OnboardingQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnboardingQuestion
         fields = '__all__'
+
+
+class QuestionOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionOption
+        fields = ["id","choice"]
+
+class QuestionSerializer(serializers.ModelSerializer):
+    options = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Question
+        fields = ["description","options","id"]
+
+    def get_options(self, obj):
+        options = QuestionOption.objects.filter(question=obj)
+        print(options)
+        return QuestionOptionSerializer(options, many=True).data

@@ -25,10 +25,11 @@ SECRET_KEY = 'django-insecure-s@2uw94@xj=i!ggb4_$if1kgp6!%!f%8pos4ph&da^!6i!vnl7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'aishat.pythonanywhere.com',
-    'localhost',  # You can include localhost for local development
-    '127.0.0.1',
+ALLOWED_HOSTS = ["*"]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://learnflex-eight.vercel.app", # frontend for group 2
+    "http://localhost:3000"
 ]
 
 
@@ -94,6 +95,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -144,9 +146,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# nextgen/settings.py
-
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}

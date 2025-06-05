@@ -49,10 +49,10 @@ class Question(models.Model):
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
-    description = models.CharField(max_length=255)
+    choice = models.CharField(max_length=255, default="")
 
     def __str__(self):
-        return self.description
+        return self.choice
 
 class UserQuestionResponse(models.Model):
     user = models.ForeignKey(User, related_name='responses', on_delete=models.CASCADE)

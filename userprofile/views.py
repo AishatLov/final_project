@@ -4,11 +4,11 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Profile, Topic, OnboardingQuestion
-from .serializers import ProfileSerializer, UserRegistrationSerializer, TopicSerializer, OnboardingQuestionSerializer
+from .models import Profile, Question, Topic, UserQuestionResponse
+from .serializers import ProfileSerializer, QuestionSerializer, UserRegistrationSerializer, TopicSerializer, OnboardingQuestionSerializer
+from rest_framework.generics import ListCreateAPIView
 
-
-class TopicView(APIView):
+class TopicView(ListCreateAPIView):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
 
@@ -27,6 +27,7 @@ class ProfileView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LoginView(APIView):
@@ -46,13 +47,21 @@ class SetupProfileView(APIView):
 
     def post(self, request):
         profile, created = Profile.objects.get_or_create(user=request.user)
-        serializer = ProfileSerializer(profile, data=request.data)
-        
+        serializer = ProfileSerializer(profile, data=request.data, context={'request': request})
+        data = request.POST
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            profile = serializer.save()
+            if "topic_ids" in data.keys():
+                topics = [int(id) for id in data['topic_ids'].split(",")]
+                selected_topics = Topic.objects.filter(id__in=topics)
+                profile.topic_of_interest.set(selected_topics)
+                profile.save()
+
+            return Response(ProfileSerializer(profile).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
@@ -80,41 +89,35 @@ class UpdateProfilePictureView(APIView):
 
 # PENDING TASKS
 
-class GetOnboardingQuestions(APIView):
-    def get(self, request, format=None):
-        questions = OnboardingQuestion.objects.all()
-        serializer = OnboardingQuestionSerializer(questions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        """
-        return all of the onboarding questions in our database
-        1) get all questions
-        2) serialized questions
-        3) return questions
-        """
+class GetOnboardingQuestions(ListCreateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
 
 class SaveUserQuestionResponse(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self,request,format=None):
         data = request.POST
         id = int(data['id'])
         response = data['answer']
 
-        """
-        1) use the id to get the question the user is answering
-
-        question = Question.objects.get(id=id)
         try:
-            formerResponse = UserQuestionResponse.objects.get(question=question)
-            formerResponse.delete()
-        except UserQuestionResponse.DoesNotExist:
-            pass
-            
-        # create a new instance of UserQuestionResponse
-        # set instance question 
-        # set instance response
-        # save instance
+            question = Question.objects.get(id=id)
+            try:
+                formerResponse = UserQuestionResponse.objects.get(question=question)
+                formerResponse.delete()
+            except UserQuestionResponse.DoesNotExist:
+                pass
 
-        2) return a Response
-        """
+            userresponse = UserQuestionResponse(
+                question = question,
+                user=request.user,
+                response=response
+            )
+
+            userresponse.save()
+            return Response({}, status=status.HTTP_200_OK)
+        except Question.DoesNotExist:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
     
