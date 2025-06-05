@@ -22,4 +22,5 @@ urlpatterns = [
     path('tutors/', views.list_and_create_tutors, name='list-create-tutors'),
     path('user/progress/', views.list_user_progress, name='user-progress'),
     path('user/update-progress/', views.update_course_progress, name='update-progress'),
+    path('upcoming-courses/', views.upcoming_courses, name='upcoming-courses'),
 ]

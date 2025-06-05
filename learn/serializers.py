@@ -43,19 +43,28 @@ class CourseResourceSerializer(serializers.ModelSerializer):
         fields = ['id', 'course', 'file', 'resource_type', 'resource_description', 
                  'resource_title', 'uploaded_at']
 
-class CourseSerializer(serializers.ModelSerializer):
-    resources = CourseResourceSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Course
-        fields = ['id', 'name', 'description', 'duration', 'tutor', 'image', 
-                 'created_at', 'resources']
-        
 class CourseMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseMaterial
         fields = '__all__'
 
+class CourseSerializer(serializers.ModelSerializer):
+    resources = CourseResourceSerializer(many=True, read_only=True)
+    materials = CourseMaterialSerializer(many=True, read_only=True)  # Adding materials
+
+    class Meta:
+        model = Course
+        fields = [
+            'id',
+            'name',
+            'description',
+            'duration',
+            'tutor',
+            'image',
+            'created_at',
+            'resources',
+            'materials'  # Including materials in the serialized output     
+        ]
 # New serializers for Quiz functionality
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:

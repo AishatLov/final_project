@@ -33,6 +33,14 @@ def user_ongoing_courses(request):
     serializer = OngoingCourseSerializer(ongoing_courses, many=True)
     return Response(serializer.data)
 
+# Upcoming Courses View
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def upcoming_courses(request):
+    upcoming = Schedule.objects.filter()
+    serializer = ScheduleSerializer(upcoming, many=True)
+    return Response(serializer.data)
+
 # User Course Rewards View
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -305,7 +313,13 @@ def completed_courses(request):
 @permission_classes([IsAuthenticated])
 def list_and_create_tutors(request):
     if request.method == 'GET':
-        tutors = Tutor.objects.all()
+        # Optional filtering by course or availability
+        course_id = request.query_params.get('course_id')
+        if course_id:
+            tutors = Tutor.objects.filter(courses__id=course_id).distinct()
+        else:
+            tutors = Tutor.objects.all()
+        
         serializer = TutorSerializer(tutors, many=True)
         return Response(serializer.data)
 
@@ -319,7 +333,7 @@ def list_and_create_tutors(request):
 # User Progress
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def list_user_progress(request):
+def list_user_progress(request):  
     user_progress = CourseProgress.objects.filter(user=request.user)
     serializer = CourseProgressSerializer(user_progress, many=True)
     return Response(serializer.data)
@@ -338,3 +352,42 @@ def update_course_progress(request):
     )
 
     return Response({"status": "success", "created": created})
+
+# Course Material Views
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def course_material_list(request, course_id):
+    if request.method == 'GET':
+        materials = CourseMaterial.objects.filter(course_id=course_id)
+        serializer = CourseMaterialSerializer(materials, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = CourseMaterialSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(course_id=course_id)  # Set the course association
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def course_material_detail(request, course_id, material_id):
+    try:
+        material = CourseMaterial.objects.get(id=material_id, course_id=course_id)
+    except CourseMaterial.DoesNotExist:
+        return Response({"message": "Material not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = CourseMaterialSerializer(material)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = CourseMaterialSerializer(material, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        material.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
