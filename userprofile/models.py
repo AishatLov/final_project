@@ -37,6 +37,7 @@ class Profile(models.Model):
     learning_type = models.CharField(max_length=20, choices=LEARNING_TYPE_CHOICES)
     picture = models.FileField(upload_to='profile_pictures/', blank=True, null=True)
     topic_of_interest = models.ManyToManyField(Topic, blank=True,related_name='profiles')
+    xp = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.user.username

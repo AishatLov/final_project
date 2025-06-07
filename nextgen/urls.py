@@ -28,6 +28,6 @@ urlpatterns = [
     path('learn/', include('learn.urls')),  # Include learning app URLs
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

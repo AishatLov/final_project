@@ -4,14 +4,15 @@ Django==5.2.1
 django-cors-headers==4.7.0
 djangorestframework==3.16.0
 drf-spectacular==0.28.0
+drf-yasg==1.21.10
 inflection==0.5.1
 jsonschema==4.24.0
 jsonschema-specifications==2025.4.1
-pillow==11.2.1
+packaging==25.0
+pytz==2025.2
 PyYAML==6.0.2
 referencing==0.36.2
 rpds-py==0.25.1
 sqlparse==0.5.3
 typing_extensions==4.14.0
-tzdata==2025.2
 uritemplate==4.2.0
