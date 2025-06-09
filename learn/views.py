@@ -44,7 +44,7 @@ from .serializers import (
         - save user reponse -- done
         - get user quiz assessment -- done
 
-    - get learning schedule
+    - get learning schedule : TODO(pending)
 
     #might need to add date to course section, so user can filter by date
 """
