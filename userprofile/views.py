@@ -29,6 +29,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
         )
     }
 )
+
 class UserInfo(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request,format=None):
@@ -41,7 +42,8 @@ class UserInfo(APIView):
             xp =0
         # return a response wih the user information
         return Response({
-            "name":f"{user.first_name} {user.last_name}",
+            "first_name":user.first_name,
+            "last_name":user.last_name,
             "email":user.email,
             "xp":xp
         },status=status.HTTP_200_OK)

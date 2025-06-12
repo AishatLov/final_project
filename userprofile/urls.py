@@ -10,5 +10,6 @@ urlpatterns = [
     path('update-profile-picture/', views.UpdateProfilePictureView.as_view(), name='update-profile-picture'),
     # Add more URLs here as needed
     path('update-profile/', views.ProfileView.as_view(), name='profile'),
-    path('topics/', views.TopicView.as_view(), name='topics'),  
+    path('topics/', views.TopicView.as_view(), name='topics'),
+    path('info',views.UserInfo.as_view(), name="user-info")  
 ]
